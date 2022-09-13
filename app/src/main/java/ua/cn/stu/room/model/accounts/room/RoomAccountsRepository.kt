@@ -106,11 +106,13 @@ class RoomAccountsRepository(
 
     private suspend fun findAccountIdByEmailAndPassword(email: String, password: CharArray): Long {
         val tuple = accountsDao.findByEmail(email) ?: throw AuthException()
-        // todo #7: use 'salt' from the tuple and 'password' entered by user to calculate a hash value;
-        //          then compare the calculated hash with the hash stored in the database instead
-        //          of comparing plain passwords. Also do not forget to clear password after usage.
-        if (!tuple.password.toCharArray().contentEquals(password)) throw AuthException()
+        val saltBytes = securityUtils.stringToBytes(tuple.salt)
+        val hashByte = securityUtils.passwordToHash(password, saltBytes)
+        val hashString = securityUtils.bytesToString(hashByte)
+        password.fill('*')
+        if (tuple.hash != hashString) throw AuthException()
         return tuple.id
+
     }
 
     private suspend fun createAccount(signUpData: SignUpData) {

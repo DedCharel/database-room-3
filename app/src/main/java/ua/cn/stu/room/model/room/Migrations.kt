@@ -1,19 +1,40 @@
 package ua.cn.stu.room.model.room
 
-// todo #8: create an AutoMigrationSpec1To2 class derived from the Room's AutoMigrationSpec class.
+import android.database.sqlite.SQLiteDatabase
+import androidx.core.content.contentValuesOf
+import androidx.room.RenameColumn
+import androidx.room.migration.AutoMigrationSpec
+import androidx.sqlite.db.SupportSQLiteDatabase
+import ua.cn.stu.room.Repositories
 
-// todo #10: use RenameColumn annotation to tell Room that you want to rename the 'password'
-//           column into a 'hash' column;
-//           Note: if you need to rename more than 1 column within one migration then you need
-//                 to use 'RenameColumn.Entries' annotation instead of 'RenameColumn'.
+@RenameColumn(tableName = "accounts", fromColumnName = "password", toColumnName = "hash")
+class AutoMigrationSpec1To2: AutoMigrationSpec{
+    val securityUtils = Repositories.securityUtils
 
-// todo #11: Override 'onPostMigrate' method in order to convert plain passwords of old accounts
-//           into 'hash' and 'salt'. Use SQL-queries and Cursor for querying data and ContentValues
-//           for updating data. SecurityUtils class instance is located in Repositories.securityUtils.
-
-// todo #12: Now do not build and run the project. Just check the database content of the already installed
-//           app in the emulator/device. Then build and run the project again and compare it with a new
-//           upgraded database after migration.
+    override fun onPostMigrate(db: SupportSQLiteDatabase) {
+        super.onPostMigrate(db)
+        db.query("SELECT * FROM accounts").use { cursor ->
+            val passwordIndex = cursor.getColumnIndex("hash")
+            val idIndex = cursor.getColumnIndex("id")
+            while (cursor.moveToNext()) {
+                val id = cursor.getLong(idIndex)
+                val passwordChars = cursor.getString(passwordIndex).toCharArray()
+                val salt = securityUtils.generateSalt()
+                val hashBytes = securityUtils.passwordToHash(passwordChars, salt)
+                db.update(
+                    "accounts",
+                    SQLiteDatabase.CONFLICT_NONE,
+                    contentValuesOf(
+                        "hash" to securityUtils.bytesToString(hashBytes),
+                        "salt" to securityUtils.bytesToString(salt)
+                    ),
+                    "id = ?",
+                    arrayOf(id.toString())
+                )
+            }
+        }
+    }
+}
 
 // todo #16: Create a migration object derived from Migration class. Specify 'from' (2) and 'to' (3)
 //           versions you want to migrate. Override 'migrate' method and use 'ALTER TABLE' SQL-query

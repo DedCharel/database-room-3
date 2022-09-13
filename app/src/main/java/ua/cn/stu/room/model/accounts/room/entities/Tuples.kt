@@ -10,8 +10,8 @@ import ua.cn.stu.room.model.boxes.room.views.SettingDbView
  */
 data class AccountSignInTuple(
     @ColumnInfo(name = "id") val id: Long,
-    // todo #5: do not forget to replace 'password' by 'hash' + 'salt' in the tuple class here:
-    @ColumnInfo(name = "password") val password: String
+    @ColumnInfo(name = "hash") val hash: String,
+    @ColumnInfo(name = "salt") val salt: String
 )
 
 /**
