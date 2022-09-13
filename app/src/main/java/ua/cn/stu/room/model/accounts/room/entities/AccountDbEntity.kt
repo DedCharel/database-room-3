@@ -20,8 +20,8 @@ data class AccountDbEntity(
     @ColumnInfo(name = "username") val username: String,
     @ColumnInfo(name = "hash") val hash: String,
     @ColumnInfo(name = "salt", defaultValue = "") val salt:String,
-    @ColumnInfo(name = "created_at") val createdAt: Long
-    // todo #14: add 'phone' column
+    @ColumnInfo(name = "created_at") val createdAt: Long,
+    @ColumnInfo(name = "phone") val phone: String?
 ) {
 
     fun toAccount(): Account = Account(
@@ -43,8 +43,9 @@ data class AccountDbEntity(
                 username = signUpData.username,
                 hash = securityUtils.bytesToString(hash),
                 salt =securityUtils.bytesToString(salt),
-                createdAt = System.currentTimeMillis()
-                // todo #15: fill 'phone' column with 'NULL' by default
+                createdAt = System.currentTimeMillis(),
+                phone = null
+
             )
         }
     }

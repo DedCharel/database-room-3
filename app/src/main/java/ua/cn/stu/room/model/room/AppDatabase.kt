@@ -11,9 +11,8 @@ import ua.cn.stu.room.model.boxes.room.entities.BoxDbEntity
 import ua.cn.stu.room.model.boxes.room.views.SettingDbView
 
 @Database(
-    version = 2,
-                    // todo #13: now let's increment DB version again by 1: from 2 to 3; we will
-                    //           add 'phone' column to the 'accounts' table by hands
+    version = 3,
+
     entities = [
         AccountDbEntity::class,
         BoxDbEntity::class,

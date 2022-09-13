@@ -9,6 +9,7 @@ import ua.cn.stu.room.model.accounts.room.RoomAccountsRepository
 import ua.cn.stu.room.model.boxes.BoxesRepository
 import ua.cn.stu.room.model.boxes.room.RoomBoxesRepository
 import ua.cn.stu.room.model.room.AppDatabase
+import ua.cn.stu.room.model.room.MIGRATION_2_3
 import ua.cn.stu.room.model.settings.AppSettings
 import ua.cn.stu.room.model.settings.SharedPreferencesAppSettings
 import ua.cn.stu.room.utils.security.DefaultSecurityUtilsImpl
@@ -24,8 +25,8 @@ object Repositories {
 
     private val database: AppDatabase by lazy<AppDatabase> {
         Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database.db")
-            // todo #17: use addMigrations method to add your manual migration from 2nd to 3rd DB version
-            .createFromAsset("initial_database.db")
+            .addMigrations(MIGRATION_2_3)
+            .createFromAsset("initial_database_v3.db")
             .build()
     }
 
